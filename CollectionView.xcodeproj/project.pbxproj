@@ -97,8 +97,8 @@
 		55FC14792108A655005040ED /* CollectionViewController */ = {
 			isa = PBXGroup;
 			children = (
-				55FC14A82108A7D0005040ED /* CollectionViewController.swift */,
 				55FC147A2108A655005040ED /* AppDelegate.swift */,
+				55FC14A82108A7D0005040ED /* CollectionViewController.swift */,
 				55FC147E2108A655005040ED /* Main.storyboard */,
 				55FC14812108A657005040ED /* Assets.xcassets */,
 				55FC14832108A657005040ED /* LaunchScreen.storyboard */,
