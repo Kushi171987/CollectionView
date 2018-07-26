@@ -27,47 +27,41 @@ class CollectionViewController: UICollectionViewController, UICollectionViewDele
 
         // Register cell classes
         self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        print("Data: \(data.count)");
         
-        
-//        var indexPaths: [NSIndexPath] = []
-//        for i in 0..<collectionView!.numberOfItems(inSection: 0) {
-//            indexPaths.append(NSIndexPath(item: i, section: 0))
-//        }
-//        collectionView?.reloadItems(at: indexPaths as [IndexPath])
-//        self.collectionView?.reloadData()
-        
+        self.startTimer()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("viewWillAppear");
-        self.startTimer();
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
     
     func startTimer() {
         let this = self;
         let queue = DispatchQueue(label: "com.domain.app.timer")  // you can also use `DispatchQueue.main`, if you want
         timer = DispatchSource.makeTimerSource(queue: queue)
-        timer!.schedule(deadline: .now(), repeating: .milliseconds(500), leeway: .seconds(2))
+        timer!.schedule(deadline: .now(), repeating: .seconds(1), leeway: .seconds(2))
         timer!.setEventHandler {
             [weak self] in
             
-            DispatchQueue.main.async {
-                let number = arc4random_uniform(5)
-                if (number == 0) {return}
-                var indexPaths: [NSIndexPath] = []
-                for i in 0..<this.collectionView!.numberOfItems(inSection: 0) {
-                    if( i % Int(number) == 0){
-                        indexPaths.append(NSIndexPath(item: Int(i), section: 0))
-                    }
+            let number = arc4random_uniform(5)
+            if (number == 0) {return}
+            var indexPaths: [NSIndexPath] = []
+            for i in 0..<noOfItems {
+                if( i % number == 0){
+                    indexPaths.append(NSIndexPath(item: Int(i), section: 0))
                 }
+            }
+            
+            DispatchQueue.main.async {
                 this.collectionView?.reloadItems(at: indexPaths as [IndexPath])
 //                this.collectionView!.reloadData()
             }
