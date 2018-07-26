@@ -7,22 +7,42 @@
 //
 
 import UIKit
+import Foundation
 
 private let reuseIdentifier = "Cell"
-var cellColor = true
 
-class CollectionViewController: UICollectionViewController {
+private var noOfItems: UInt32 = 1000
+private let numberOfItemsPerRow = 4
+let data = Array(1...noOfItems)
+
+var timer: DispatchSourceTimer?
+
+class CollectionViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
+         self.clearsSelectionOnViewWillAppear = false
 
         // Register cell classes
         self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
-        // Do any additional setup after loading the view.
+        print("Data: \(data.count)");
+        
+        
+//        var indexPaths: [NSIndexPath] = []
+//        for i in 0..<collectionView!.numberOfItems(inSection: 0) {
+//            indexPaths.append(NSIndexPath(item: i, section: 0))
+//        }
+//        collectionView?.reloadItems(at: indexPaths as [IndexPath])
+//        self.collectionView?.reloadData()
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("viewWillAppear");
+        self.startTimer();
     }
 
     override func didReceiveMemoryWarning() {
@@ -30,6 +50,40 @@ class CollectionViewController: UICollectionViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    
+    func startTimer() {
+        let this = self;
+        let queue = DispatchQueue(label: "com.domain.app.timer")  // you can also use `DispatchQueue.main`, if you want
+        timer = DispatchSource.makeTimerSource(queue: queue)
+        timer!.schedule(deadline: .now(), repeating: .milliseconds(500), leeway: .seconds(2))
+        timer!.setEventHandler {
+            [weak self] in
+            
+            DispatchQueue.main.async {
+                let number = arc4random_uniform(5)
+                if (number == 0) {return}
+                var indexPaths: [NSIndexPath] = []
+                for i in 0..<this.collectionView!.numberOfItems(inSection: 0) {
+                    if( i % Int(number) == 0){
+                        indexPaths.append(NSIndexPath(item: Int(i), section: 0))
+                    }
+                }
+                this.collectionView?.reloadItems(at: indexPaths as [IndexPath])
+//                this.collectionView!.reloadData()
+            }
+        }
+        timer!.resume()
+    }
+    
+    func stopTimer() {
+        timer?.cancel()
+        timer = nil
+    }
+    
+    deinit {
+        self.stopTimer()
+    }
+    
     func randomColor() -> UIColor{
         let red = CGFloat(drand48())
         let green = CGFloat(drand48())
@@ -57,17 +111,27 @@ class CollectionViewController: UICollectionViewController {
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
-        return 100
+        return data.count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
     
         // Configure the cell
-        cell.backgroundColor = randomColor()
-//        cell.backgroundColor = cellColor ? UIColor.red : UIColor.blue
-//        cellColor = !cellColor
-        
+        let rowTest = (indexPath.row / 4) % 2;
+        var rowColor = UIColor.init(red: 150.0/255.0, green: 150.0/255.0, blue: 150.0/255.0, alpha: 1.0)
+        if (rowTest == 1) {
+            rowColor = UIColor.init(red: 150.0, green: 200.0, blue: 255.0, alpha: 1.0)
+        }
+        cell.backgroundColor = rowColor
+//        cell.backgroundColor = randomColor()
+        let label = UILabel();
+        let number = arc4random_uniform(noOfItems)
+        label.text = "\(number)"
+
+//        let string = data[indexPath.row]
+//        label.text = "\(string)"
+        cell.backgroundView = label;
         return cell
     }
 
@@ -98,6 +162,39 @@ class CollectionViewController: UICollectionViewController {
         alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
         
         self.present(alertController, animated: true, completion: nil)
+    }
+
+    // MARK: UICollectionViewLayoutDelegate
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
+        let flowLayout = collectionViewLayout as! UICollectionViewFlowLayout
+        let totalSpace = flowLayout.sectionInset.left
+            + flowLayout.sectionInset.right
+            + (flowLayout.minimumInteritemSpacing * CGFloat(numberOfItemsPerRow - 1))
+        let size = Int((collectionView.bounds.width - totalSpace) / CGFloat(numberOfItemsPerRow))
+        
+        return CGSize(width: size, height: size)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsetsMake(0,0,0,0)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: 50, height: 20)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        return CGSize(width: 50, height: 20)
     }
 
 }
