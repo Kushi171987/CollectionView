@@ -45,8 +45,7 @@ class CollectionViewController: UICollectionViewController, UICollectionViewDele
     }
     
     func startTimer() {
-        let this = self;
-        let queue = DispatchQueue(label: "com.domain.app.timer")  // you can also use `DispatchQueue.main`, if you want
+        let queue = DispatchQueue(label: "com.sagarsoft.collectionview")  // you can also use `DispatchQueue.main`, if you want
         timer = DispatchSource.makeTimerSource(queue: queue)
         timer!.schedule(deadline: .now(), repeating: .seconds(1), leeway: .seconds(2))
         timer!.setEventHandler {
@@ -62,7 +61,7 @@ class CollectionViewController: UICollectionViewController, UICollectionViewDele
             }
             
             DispatchQueue.main.async {
-                this.collectionView?.reloadItems(at: indexPaths as [IndexPath])
+                self!.collectionView?.reloadItems(at: indexPaths as [IndexPath])
 //                this.collectionView!.reloadData()
             }
         }
